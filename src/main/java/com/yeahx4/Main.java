@@ -3,6 +3,7 @@ package com.yeahx4;
 import com.yeahx4.cli.CliParamParser;
 import com.yeahx4.cli.InvalidOptionException;
 import com.yeahx4.cli.ParamData;
+import com.yeahx4.cli.cmd.CliExecutor;
 
 import java.util.List;
 
@@ -15,6 +16,9 @@ public class Main {
         if (args.length == 0) printHelp();
 
         List<ParamData> params = CliParamParser.parseParam(args);
-        System.out.println(params);
+
+        for (var p : params) {
+            CliExecutor.exeKey(p.key, p.content);
+        }
     }
 }
