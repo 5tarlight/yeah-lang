@@ -3,7 +3,21 @@ package com.yeahx4.cli;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CliParamParser {
+/**
+ * Param Parser static method class.
+ *
+ * @author yeahx4
+ * @since 1.0
+ */
+public final class CliParamParser {
+    /**
+     * parse parameter and run every params
+     *
+     * @param args Start argument list
+     * @return parsed list of arguments
+     * @throws InvalidOptionException Throws when some arguments are not proper.
+     *                                Unknown key, invalid dash counts, invalid number or type of after-argument
+     */
     public static List<ParamData> parseParam(String[] args) throws InvalidOptionException {
         int skipNext = 0;
         List<ParamData> params = new ArrayList<>();

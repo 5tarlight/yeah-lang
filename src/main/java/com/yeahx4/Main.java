@@ -8,12 +8,9 @@ import com.yeahx4.cli.cmd.CliExecutor;
 import java.util.List;
 
 public class Main {
-    private static void printHelp() {
-        System.out.println("Yeah Lang help page");
-    }
-
     public static void main(String[] args) throws InvalidOptionException {
-        if (args.length == 0) printHelp();
+        if (args.length == 0)
+            CliExecutor.exe.get("help").function.execute(null);
 
         List<ParamData> params = CliParamParser.parseParam(args);
 

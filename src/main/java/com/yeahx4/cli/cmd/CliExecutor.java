@@ -29,7 +29,8 @@ public abstract class CliExecutor {
             case "help", "H" -> originalKey = "help";
         }
 
-        if (!exe.containsKey(originalKey)) throw new InvalidOptionException(key);
+        if (!exe.containsKey(originalKey))
+            throw new InvalidOptionException(key);
 
         exe.get(originalKey).execute(value);
     }
