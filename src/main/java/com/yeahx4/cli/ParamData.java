@@ -18,13 +18,22 @@ public final class ParamData {
     /**
      * Major key of argument
      */
-    public String key;
+    public final String key;
     /**
      * Value of key. null if not needed orr spam
      */
-    public String content;
-    public ParamType type;
+    public final String content;
+    public final ParamType type;
 
+    /**
+     * Create new param data instance.
+     * On initializing, argument check will be evoked.
+     *
+     * @param key name of argument. Invalid key will throw {@link InvalidOptionException}
+     * @param content
+     * @param type
+     * @throws InvalidOptionException
+     */
     public ParamData(String key, String content, ParamType type) throws InvalidOptionException {
         this.key = key;
         this.content = content;
