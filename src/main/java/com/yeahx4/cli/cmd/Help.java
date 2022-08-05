@@ -8,6 +8,10 @@ package com.yeahx4.cli.cmd;
  * @since 1.0
  */
 public final class Help extends CliExecutor {
+    /**
+     * Print Help message.
+     * List of commands will be automatically delivered from {@link CliExecutor}
+     */
     public Help() {
         super(str -> {
            System.out.println("============== Yeah Lang CLI help ==============\n");
