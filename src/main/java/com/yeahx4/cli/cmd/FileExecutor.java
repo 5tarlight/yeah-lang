@@ -1,8 +1,10 @@
 package com.yeahx4.cli.cmd;
 
+import com.yeahx4.lang.InvalidYeahFileException;
 import com.yeahx4.lang.YeahLangReader;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -16,7 +18,7 @@ public class FileExecutor {
      *
      * @param key cli argument path. relative path will be automatically converted into absolute path.
      */
-    public static void runFile(String key) {
+    public static void runFile(String key) throws InvalidYeahFileException {
         File file = new File(key);
         String path;
 
@@ -24,22 +26,37 @@ public class FileExecutor {
             path = absUrl(file.getAbsolutePath());
             YeahLangReader reader = new YeahLangReader(path);
             System.out.println(reader.readFile());
-        } catch (Exception ex) {
-            // TODO handle every exception
-            ex.printStackTrace();
+        } catch (URISyntaxException uri) {
+            throw new InvalidYeahFileException(key, uri.getReason());
+        } catch (IOException io) {
+            throw new InvalidYeahFileException(key, "Unable to locate .yeah file");
         }
     }
 
     /**
      * parse protocol-based relative url to absolute protocol-based url
      *
+     * {@code baseUrlString} must start with protocol
+     * <pre>
+     * FileExecutor.absUrl("test/foo/com", null)
+     * </pre>
+     * Up will throw {@link MalformedURLException}.
+     * And protocol must well-known and valid.
+     * <pre>
+     * FileExecutor.absUrl("http://yeah/com", null)
+     * </pre>
+     * Up is ok.
+     * <pre>
+     * FileExecutor.absUrl("yeah://yeaaaah", null)
+     * </pre>
+     * Up will cause {@link MalformedURLException}
+     *
      * @param baseUrlString base url
      * @param urlString relative url being joined with baseUrlString
      * @return absolute protocol url
      * @throws MalformedURLException protocol is not provided or not valid
-     * @throws URISyntaxException uri syntax is wrong
      */
-    public static String absUrl(String baseUrlString, String urlString) throws MalformedURLException, URISyntaxException {
+    public static String absUrl(String baseUrlString, String urlString) throws MalformedURLException {
         if (urlString == null || urlString.trim().length() == 0)
             urlString = "";
 

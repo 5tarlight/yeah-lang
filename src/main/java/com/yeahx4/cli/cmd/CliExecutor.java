@@ -1,6 +1,7 @@
 package com.yeahx4.cli.cmd;
 
 import com.yeahx4.cli.InvalidOptionException;
+import com.yeahx4.lang.InvalidYeahFileException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +46,10 @@ public abstract class CliExecutor {
      * @param key argument key. if not valid dash numbers,
      * @param value argument parameter. {@link null} if not defined
      * @throws InvalidOptionException if key is not valid
+     * @throws InvalidYeahFileException if given file path is not valid
      */
-    public static void exeKey(String key, String value) throws InvalidOptionException {
+    public static void exeKey(String key, String value)
+            throws InvalidOptionException, InvalidYeahFileException {
         String originalKey = null;
 
         switch (key) {
