@@ -39,7 +39,7 @@ public final class ParamData {
         this.content = content;
         this.type = type;
 
-        if (!params.containsKey(key) || params.get(key) != type)
+        if (!key.endsWith(".yeah") && (!params.containsKey(key) || params.get(key) != type))
             throw new InvalidOptionException(key);
     }
 }
