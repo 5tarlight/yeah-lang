@@ -2,6 +2,7 @@ package com.yeahx4.cli.cmd;
 
 import com.yeahx4.lang.InvalidYeahFileException;
 import com.yeahx4.lang.YeahLangReader;
+import com.yeahx4.lang.exe.YeahLangParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,8 @@ public class FileExecutor {
         try {
             path = absUrl(file.getAbsolutePath());
             YeahLangReader reader = new YeahLangReader(path);
-            System.out.println(reader.readFile());
+            String content = reader.readFile();
+            YeahLangParser.parse(content);
         } catch (URISyntaxException uri) {
             throw new InvalidYeahFileException(key, uri.getReason());
         } catch (IOException io) {
