@@ -14,7 +14,7 @@ import java.net.URL;
 /**
  * Execute file from cli argument
  */
-public class FileExecutor {
+public final class FileExecutor {
     /**
      * Execute .yeah file.
      *
