@@ -108,9 +108,23 @@ public final class Token<T> {
         return Boolean.parseBoolean(encrypt.substring(getLitPreLength(), encrypt.length() - 1));
     }
 
+    /**
+     * Encrypt token
+     */
     public String token;
+    /**
+     * Type class of raw token value
+     */
     public Class<?> type;
 
+    /**
+     * Create token instance with data.
+     *
+     * @param data raw data
+     * @deprecated do not directly create token instance.
+     *             encrypt&decrypt through static methods
+     */
+    @Deprecated
     public Token(T data) {
         type = data.getClass();
 
@@ -126,6 +140,14 @@ public final class Token<T> {
             token = encryptString("OMG This must not happen");
     }
 
+    /**
+     * Return original value with boxed literal parsing.
+     * This use unchecked casting and may cause exception.
+     *
+     * @return original Literal
+     * @deprecated use static decrypt methods
+     */
+    @Deprecated
     public T getValue() {
         if (type == String.class)
             return (T)decryptString(token);
