@@ -13,10 +13,6 @@ import java.util.stream.Stream;
  * @since 1.0
  */
 public final class YeahLangParser {
-    private static List<String> words = Arrays.asList(
-            "if", "else if", "else",
-            "for", "while", "do"
-    );
     private static List<String> funcs = Arrays.asList(
             "print", "println", "printf"
     );
@@ -73,24 +69,157 @@ public final class YeahLangParser {
 //            }
 //        }
 //    }
-    public static void parse(String yeah, String path) throws InvalidYeahSyntaxException {
-        // inline multi statements is not allowed.
-        List<String> statements = Arrays.stream(yeah.split("(;\\r\\n|;\\n|;)$"))
-                .map(str -> str.replaceAll("(\\r\\n|\\n)+", ""))
-                .map(str -> str.replaceAll(" ", ""))
-                .filter(str -> !str.startsWith("//"))
-                .toList();
+    public void parse(String yeah, String path) throws InvalidYeahSyntaxException {
+        Stack<String> stack = new Stack<>();
+        char[] chars = yeah.toCharArray();
+        StringBuilder result = new StringBuilder();
 
-        statements.forEach(state -> {
-            funcs.forEach(f -> {
-                if (state.startsWith(f)) {
-                    switch (f) {
-                        case "print" -> {
-                            return;
-                        }
+        long id = 0L;
+        int line = 1;
+
+        for (int i = 0; i < chars.length; i++) {
+            if (isInString(stack)) {
+                // TODO string literal parsing
+                continue;
+            }
+
+            char c = chars[i];
+
+            if (c == '\n')
+                line++;
+            if (isEmpty(c))
+                continue;
+
+            if (c == '(') continue;
+            else if (c == ')') continue;
+            else if (c == '{') continue;
+            else if (c == '}') continue;
+            else if (chars[i] == 'i') {
+                // if
+                if (checkReserved(chars, i, "if", true, path, line)) {
+                    result.append("[START_IF_").append(id).append("]");
+                    id++;
+                    i += 2;
+                } else
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
+            } else if (chars[i] == 'f') {
+                // for
+                if (checkReserved(chars, i, "for", true, path, line)) {
+                    result.append("[START_FOR_").append(id).append("]");
+                    id++;
+                    i += 3;
+                } else
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
+            } else if (chars[i] == 'w') {
+                // while
+                if (checkReserved(chars, i, "while", true, path, line)) {
+                    result.append("[START_WHILE_").append(id).append("]");
+                    id++;
+                    i += 5;
+                } else
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
+            } else if (chars[i] == 'e') {
+                // else, else if
+                if (checkReserved(chars, i, "else if", true, path, line)) {
+                    result.append("[START_ElSE_IF_").append(id).append("]");
+                    id++;
+                    i += 7;
+                } else if (checkReserved(chars, i, "else", false, path, line)) {
+                    result.append("[START_ELSE_").append(id).append("]");
+                    id++;
+                    i += 4;
+                } else
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
+            } else {
+                throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
+            }
+        }
+
+        System.out.println(result);
+    }
+
+    private boolean isInString(Stack<String> stack) {
+        if (stack.isEmpty()) return false;
+        return stack.lastElement().startsWith("[START_STR");
+    }
+
+    /**
+     * Check is next string is reserved keywords and with brace if needed.
+     *
+     * @param chars Character array of input string
+     * @param start start index of char array
+     * @param token reserved keyword which will be checked
+     * @param needSmallBrace does keyword require small brace ('(')
+     * @param path path of read file. This will be displayed for @{link {@link InvalidYeahSyntaxException}}
+     * @param line line of start char. This will be displayed for @{link {@link InvalidYeahSyntaxException}}
+     * @return next char is reserved keyword
+     * @throws InvalidYeahSyntaxException Unexpected syntax
+     */
+    private boolean checkReserved(
+            char[] chars,
+            int start,
+            String token,
+            boolean needSmallBrace,
+            String path,
+            int line
+    ) throws InvalidYeahSyntaxException {
+        boolean checked = false;
+        boolean finished = false;
+
+        if (!token.startsWith(String.valueOf(chars[start])))
+            return false;
+        else if (chars.length < start + token.length())
+            if (!token.equals("else if"))
+                throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + chars[start]);
+            else
+                return false;
+
+        for (int i = start; !(i >= chars.length || finished); i++) {
+            // Check reserved keyword
+            if (i == start) {
+                for (int j = 0; j < token.length(); j++) {
+                    if (chars[start + j] != token.charAt(j)) {
+                        if (!token.equals("else if"))
+                            throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + chars[start + j]);
                     }
                 }
-            });
-        });
+
+                i += token.length() - 1;
+                if (!needSmallBrace) {
+                    checked = true;
+                    finished = true;
+                }
+            } else {
+//                System.out.println(i);
+                if (isEmpty(chars[i]))
+                    continue;
+
+                if (chars[i] == '(') {
+                    checked = true;
+                    finished = true;
+                } else {
+                    // Not blank and not brace
+                    throw new InvalidYeahSyntaxException(
+                            path,
+                            line,
+                            "Unexpected token(expected '(') : " + chars[i]
+                    );
+                }
+            }
+        }
+
+//        System.out.println(checked);
+        return checked;
+    }
+
+    /**
+     * check is given character is empty char.
+     * Empty means blank or \n
+     *
+     * @param ch char input
+     * @return is char empty
+     */
+    private boolean isEmpty(char ch) {
+        return ch == ' ' || ch == '\n';
     }
 }

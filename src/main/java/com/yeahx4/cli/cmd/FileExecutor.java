@@ -30,7 +30,8 @@ public final class FileExecutor {
             path = absUrl(file.getAbsolutePath());
             YeahLangReader reader = new YeahLangReader(path);
             String content = reader.readFile();
-            YeahLangParser.parse(content, path);
+            YeahLangParser parser = new YeahLangParser();
+            parser.parse(content, path);
         } catch (URISyntaxException uri) {
             throw new InvalidYeahFileException(key, uri.getReason());
         } catch (IOException io) {
