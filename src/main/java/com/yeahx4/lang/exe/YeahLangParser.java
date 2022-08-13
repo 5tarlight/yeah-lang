@@ -90,14 +90,21 @@ public final class YeahLangParser {
             if (isEmpty(c))
                 continue;
 
-            if (c == '(') continue;
-            else if (c == ')') continue;
-            else if (c == '{') continue;
-            else if (c == '}') continue;
-            else if (chars[i] == 'i') {
+            if (c == '(') {
+                String last = stack.lastElement();
+                if (!Token.needSmallBrace(last)) {
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '('");
+                }
+            } else if (c == ')') {
+                continue;
+            } else if (c == '}') {
+                continue;
+            } else if (c == '{') {
+                continue;
+            } else if (chars[i] == 'i') {
                 // if
                 if (checkReserved(chars, i, "if", true, path, line)) {
-                    result.append("[START_IF_").append(id).append("]");
+                    result.append(Token.IF_START).append(id).append("]");
                     id++;
                     i += 2;
                 } else
@@ -105,7 +112,7 @@ public final class YeahLangParser {
             } else if (chars[i] == 'f') {
                 // for
                 if (checkReserved(chars, i, "for", true, path, line)) {
-                    result.append("[START_FOR_").append(id).append("]");
+                    result.append(Token.FOR_START).append(id).append("]");
                     id++;
                     i += 3;
                 } else
@@ -113,7 +120,7 @@ public final class YeahLangParser {
             } else if (chars[i] == 'w') {
                 // while
                 if (checkReserved(chars, i, "while", true, path, line)) {
-                    result.append("[START_WHILE_").append(id).append("]");
+                    result.append(Token.WHILE_START).append(id).append("]");
                     id++;
                     i += 5;
                 } else
@@ -121,11 +128,11 @@ public final class YeahLangParser {
             } else if (chars[i] == 'e') {
                 // else, else if
                 if (checkReserved(chars, i, "else if", true, path, line)) {
-                    result.append("[START_ElSE_IF_").append(id).append("]");
+                    result.append(Token.ELSE_IF_START).append(id).append("]");
                     id++;
                     i += 7;
                 } else if (checkReserved(chars, i, "else", false, path, line)) {
-                    result.append("[START_ELSE_").append(id).append("]");
+                    result.append(Token.ELSE_START).append(id).append("]");
                     id++;
                     i += 4;
                 } else

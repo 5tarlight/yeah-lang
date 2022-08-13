@@ -1,5 +1,7 @@
 package com.yeahx4.lang.exe;
 
+import java.util.Stack;
+
 /**
  * language parsing tokenizer.
  * Struct code structure
@@ -14,7 +16,20 @@ public final class Token<T> {
     private final static String DBL_PRE = "DBL_";
     private final static String BOL_PRE = "BOL_";
 
+    public final static String IF_START = "[START_IF_";
+    public final static String ELSE_IF_START = "[START_ELSE_IF_";
+    public final static String ELSE_START = "[START_ELSE";
+    public final static String FOR_START = "[START_FOR_";
+    public final static String WHILE_START = "[START_FOR_";
+
     private final static String FUNC_PRINT = "[F_P]";
+
+    public static boolean needSmallBrace(String last) {
+        return last.startsWith(IF_START) ||
+                last.startsWith(ELSE_IF_START) ||
+                last.startsWith(FOR_START) ||
+                last.startsWith(WHILE_START);
+    }
 
     private static int getLitPreLength(String pre) {
         return LIT_PRE.length() + pre.length();
