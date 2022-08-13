@@ -22,6 +22,35 @@ public final class Token<T> {
     public final static String FOR_START = "[START_FOR_";
     public final static String WHILE_START = "[START_FOR_";
 
+    public final static String IF_CON = "IF_CON";
+    public final static String IF_CON_START = "[START_IF_CON_";
+    public final static String IF_CON_END = "[END_IF_CON_";
+    public final static String ELSE_IF_CON = "ELSE_IF_CON";
+    public final static String ELSE_IF_CON_START = "[START_ELSE_IF_CON_";
+    public final static String ELSE_IF_CON_END = "[END_ELSE_IF_CON_";
+    public final static String FOR_CON = "FOR_CON";
+    public final static String FOR_CON_START = "[START_FOR_CON_";
+    public final static String FOR_CON_END = "[END_FOR_CON_";
+    public final static String WHILE_CON = "WHILE_CON";
+    public final static String WHILE_CON_START = "[START_WHILE_CON_";
+    public final static String WHILE_CON_END = "[END_WHILE_CON_";
+
+    public final static String IF_BODY = "IF_BODY";
+    public final static String IF_BODY_START = "[START_IF_BODY_";
+    public final static String IF_BODY_END = "[END_IF_BODY_";
+    public final static String ELSE_IF_BODY = "ELSE_IF_BODY";
+    public final static String ElSE_IF_BODY_START = "[START_ELSE_IF_BODY_";
+    public final static String ELSE_IF_BODY_END = "[END_ELSE_IF_BODY_";
+    public final static String ELSE_BODY = "ELSE_BODY";
+    public final static String ELSE_BODY_START = "[START_ELSE_BODY_";
+    public final static String ELSE_BODY_END = "[END_ELSE_BODY_";
+    public final static String FOR_BODY = "FOR_BODY";
+    public final static String FOR_BODY_START = "[START_FOR_BODY_";
+    public final static String FOR_BODY_END = "[FOR_BODY_END_";
+    public final static String WHILE_BODY = "WHILE_BODY";
+    public final static String WHILE_BODY_START = "[START_WHILE_BODY_";
+    public final static String WHILE_BODY_END = "[END_WHILE_BODY_";
+
     private final static String FUNC_PRINT = "[F_P]";
 
     public static boolean needSmallBrace(String last) {
