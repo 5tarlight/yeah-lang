@@ -1,9 +1,6 @@
 package com.yeahx4.lang.exe;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
-import java.util.stream.Stream;
+import java.util.*;
 
 /**
  * Interpret yeah lang file.
@@ -24,55 +21,11 @@ public final class YeahLangParser {
      * @param path parsing file's absolute path
      * @throws InvalidYeahSyntaxException content of file is not valid yeah lang syntax
      */
-//    public static void parse(String yeah, String path) throws InvalidYeahSyntaxException {
-//        Stream<String> lineStream = yeah.lines();
-//        List<String> lines = lineStream.toList();
-//        Stack<ParseAction> actionStack = new Stack<>();
-//
-//        for (int i = 0; i < lines.size(); i++) {
-//            String line = lines.get(i).trim();
-//            if (line.isEmpty()) return;
-//
-//            boolean lineStartCheck = false;
-//
-//            for (String word : words) {
-//                if (line.startsWith(word)) {
-//                    lineStartCheck = true;
-//                    // TODO do reserved word action
-//                }
-//            }
-//
-//            if (!lineStartCheck) {
-//                for (String func : funcs) {
-//                    if (line.startsWith(func)) {
-//                        String f = "";
-//
-//                        switch (func) {
-//                            case "print" -> {
-//                                f = "print";
-//                                if (line.length() < f.length()) {
-//                                    throw new InvalidYeahSyntaxException(path, i, "Unexpected EOL");
-//                                } else if (!line.contains("(")) {
-//                                    throw new InvalidYeahSyntaxException(path, i, "Expected (");
-//                                }
-//
-//                                String back = line.substring("print".length()).trim();
-//                                if (!back.startsWith("("))
-//                                    throw new InvalidYeahSyntaxException(path, i, "Expected (");
-//
-//                                actionStack.push(ParseAction.FUNCTION_EXE_PARAM_BRACE);
-//                            }
-//                        }
-//                        // TODO reserved function action
-//                    }
-//                }
-//            }
-//        }
-//    }
     public void parse(String yeah, String path) throws InvalidYeahSyntaxException {
         Stack<String> stack = new Stack<>();
         char[] chars = yeah.toCharArray();
-        StringBuilder result = new StringBuilder();
+//        StringBuilder result = new StringBuilder();
+        Deque<String> result = new LinkedList<>();
 
         long id = 0L;
         int line = 1;
@@ -85,56 +38,101 @@ public final class YeahLangParser {
 
             char c = chars[i];
 
-            if (c == '\n')
+            if (c == '\n') // TODO if \n is in string, ignore
                 line++;
             if (isEmpty(c))
                 continue;
 
             if (c == '(') {
+                if (stack.size() < 1)
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '('");
+
                 String last = stack.lastElement();
                 if (!Token.needSmallBrace(last)) {
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '('");
                 }
+
+                if (last.equals(Token.IF_CON) && result.getLast().startsWith(Token.IF_START)) {
+                    result.add(Token.IF_CON_START);
+                    int lastId = getLastStart(result, "IF", "", path, line, "(");
+                    stack.push(Token.IF_CON_START + lastId + "]");
+                } else if (last.equals(Token.ELSE_IF_CON) && result.getLast().startsWith(Token.ELSE_IF_START)) {
+                    result.add(Token.ELSE_IF_CON_START);
+                    int lastId = getLastStart(result, "ELSE_IF", "", path, line, "(");
+                    stack.push(Token.ELSE_IF_CON_START + lastId + "]");
+                } else if (last.equals(Token.FOR_CON) && result.getLast().startsWith(Token.FOR_START)) {
+                    result.add(Token.FOR_CON_START);
+                    int lastId = getLastStart(result, "FOR", "", path, line, "(");
+                    stack.push(Token.FOR_CON_START + lastId + "]");
+                } else if (last.equals(Token.WHILE_CON) && result.getLast().startsWith(Token.WHILE_START)) {
+                    result.add(Token.WHILE_CON_START);
+                    int lastId = getLastStart(result, "WHILE", "", path, line, "(");
+                    stack.push(Token.WHILE_CON_START + lastId + "]");
+                }
             } else if (c == ')') {
+                if (stack.size() < 1)
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : ')'");
+                String last = stack.lastElement();
+
+                if (last.contains("CON")) {
+                    if (last.startsWith(Token.IF_CON)) {
+                        int lastId = getLastStart(result, "IF", "CON", path, line, ")");
+                        result.add(Token.IF_CON_END + lastId + "]");
+                        stack.pop();
+                    } // TODO Start from here. other states
+                }
+            } else if (c == '{') {
+                if (stack.size() < 1)
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '{'");
                 continue;
             } else if (c == '}') {
-                continue;
-            } else if (c == '{') {
+                if (stack.size() < 1)
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '}'");
                 continue;
             } else if (chars[i] == 'i') {
                 // if
                 if (checkReserved(chars, i, "if", true, path, line)) {
-                    result.append(Token.IF_START).append(id).append("]");
+//                    result.append(Token.IF_START).append(id).append("]");
+                    result.add(Token.IF_START + id + "]");
                     id++;
                     i += 2;
+                    stack.push(Token.IF_CON);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else if (chars[i] == 'f') {
                 // for
                 if (checkReserved(chars, i, "for", true, path, line)) {
-                    result.append(Token.FOR_START).append(id).append("]");
+//                    result.append(Token.FOR_START).append(id).append("]");
+                    result.add(Token.FOR_START + id + "]");
                     id++;
                     i += 3;
+                    stack.push(Token.FOR_CON);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else if (chars[i] == 'w') {
                 // while
                 if (checkReserved(chars, i, "while", true, path, line)) {
-                    result.append(Token.WHILE_START).append(id).append("]");
+//                    result.append(Token.WHILE_START).append(id).append("]");
+                    result.add(Token.WHILE_START + id + "]");
                     id++;
                     i += 5;
+                    stack.push(Token.WHILE_CON);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else if (chars[i] == 'e') {
                 // else, else if
                 if (checkReserved(chars, i, "else if", true, path, line)) {
-                    result.append(Token.ELSE_IF_START).append(id).append("]");
+//                    result.append(Token.ELSE_IF_START).append(id).append("]");
+                    result.add(Token.ELSE_IF_START + id + "]");
                     id++;
                     i += 7;
+                    stack.push(Token.ELSE_IF_CON);
                 } else if (checkReserved(chars, i, "else", false, path, line)) {
-                    result.append(Token.ELSE_START).append(id).append("]");
+//                    result.append(Token.ELSE_START).append(id).append("]");
+                    result.add(Token.ELSE_START + id + "]");
                     id++;
                     i += 4;
+                    stack.push(Token.ELSE_BODY);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else {
@@ -142,9 +140,59 @@ public final class YeahLangParser {
             }
         }
 
-        System.out.println(result);
+        String[] array = new String[result.size()];
+        result.toArray(array);
+        String parsed = String.join("", array);
+
+        System.out.println(parsed);
     }
 
+    private int getLastStart(
+            Deque<String> queue,
+            String state,
+            String type,
+            String file,
+            int line,
+            String token
+    ) throws InvalidYeahSyntaxException {
+        if (queue.size() < 1)
+            throw new InvalidYeahSyntaxException(file, line, String.format("Unexpected token '%s'", token));
+
+        Stack<String> reverse = new Stack<>();
+        for (String e : queue) {
+            reverse.push(e);
+        }
+
+        boolean found = false;
+        int id = -1;
+
+        for (String e : reverse) {
+            if (found)
+                break;
+
+            String query;
+            if (type.equals(""))
+                query = String.format("[START_%s_", state);
+            else
+                query = String.format("[START_%s_%s_", state, type);
+            if (state.equals("ELSE") && type.equals("")) {
+                if (e.startsWith(query) && !e.startsWith(query + "IF_")) {
+                    found = true;
+                    id = Integer.parseInt(e.substring(query.length(), e.length() - 1));
+                }
+            } else if (e.startsWith(query)) {
+                found = true;
+                id = Integer.parseInt(e.substring(query.length(), e.length() - 1));
+            }
+        }
+
+        if (id == -1)
+            throw new InvalidYeahSyntaxException(file, line, String.format("Unexpected token '%s'", token));
+
+        return id;
+    }
+
+    @Deprecated
     private boolean isInString(Stack<String> stack) {
         if (stack.isEmpty()) return false;
         return stack.lastElement().startsWith("[START_STR");

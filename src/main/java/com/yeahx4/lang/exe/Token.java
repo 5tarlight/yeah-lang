@@ -39,7 +39,7 @@ public final class Token<T> {
     public final static String IF_BODY_START = "[START_IF_BODY_";
     public final static String IF_BODY_END = "[END_IF_BODY_";
     public final static String ELSE_IF_BODY = "ELSE_IF_BODY";
-    public final static String ElSE_IF_BODY_START = "[START_ELSE_IF_BODY_";
+    public final static String ELSE_IF_BODY_START = "[START_ELSE_IF_BODY_";
     public final static String ELSE_IF_BODY_END = "[END_ELSE_IF_BODY_";
     public final static String ELSE_BODY = "ELSE_BODY";
     public final static String ELSE_BODY_START = "[START_ELSE_BODY_";
@@ -54,10 +54,7 @@ public final class Token<T> {
     private final static String FUNC_PRINT = "[F_P]";
 
     public static boolean needSmallBrace(String last) {
-        return last.startsWith(IF_START) ||
-                last.startsWith(ELSE_IF_START) ||
-                last.startsWith(FOR_START) ||
-                last.startsWith(WHILE_START);
+        return last.contains("CON");
     }
 
     private static int getLitPreLength(String pre) {
