@@ -52,22 +52,22 @@ public final class YeahLangParser {
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '('");
                 }
 
-                if (last.equals(Token.IF_CON) && result.getLast().startsWith(Token.IF_START)) {
-                    result.add(Token.IF_CON_START);
+                if (last.equals(Token.IF) && result.getLast().startsWith(Token.IF_START)) {
                     int lastId = getLastStart(result, "IF", "", path, line, "(");
-                    stack.push(Token.IF_CON_START + lastId + "]");
-                } else if (last.equals(Token.ELSE_IF_CON) && result.getLast().startsWith(Token.ELSE_IF_START)) {
-                    result.add(Token.ELSE_IF_CON_START);
+                    result.add(Token.IF_CON_START + lastId + "]");
+                    stack.push(Token.IF_CON);
+                } else if (last.equals(Token.ELSE_IF) && result.getLast().startsWith(Token.ELSE_IF_START)) {
                     int lastId = getLastStart(result, "ELSE_IF", "", path, line, "(");
-                    stack.push(Token.ELSE_IF_CON_START + lastId + "]");
-                } else if (last.equals(Token.FOR_CON) && result.getLast().startsWith(Token.FOR_START)) {
-                    result.add(Token.FOR_CON_START);
+                    result.add(Token.ELSE_IF_CON_START + lastId + "]");
+                    stack.push(Token.ELSE_IF_CON);
+                } else if (last.equals(Token.FOR) && result.getLast().startsWith(Token.FOR_START)) {
                     int lastId = getLastStart(result, "FOR", "", path, line, "(");
-                    stack.push(Token.FOR_CON_START + lastId + "]");
-                } else if (last.equals(Token.WHILE_CON) && result.getLast().startsWith(Token.WHILE_START)) {
-                    result.add(Token.WHILE_CON_START);
+                    result.add(Token.FOR_CON_START + lastId + "]");
+                    stack.push(Token.FOR_CON);
+                } else if (last.equals(Token.WHILE) && result.getLast().startsWith(Token.WHILE_START)) {
                     int lastId = getLastStart(result, "WHILE", "", path, line, "(");
-                    stack.push(Token.WHILE_CON_START + lastId + "]");
+                    result.add(Token.WHILE_CON_START + lastId + "]");
+                    stack.push(Token.WHILE_CON);
                 }
             } else if (c == ')') {
                 if (stack.size() < 1)
@@ -79,7 +79,21 @@ public final class YeahLangParser {
                         int lastId = getLastStart(result, "IF", "CON", path, line, ")");
                         result.add(Token.IF_CON_END + lastId + "]");
                         stack.pop();
-                    } // TODO Start from here. other states
+                    } else if (last.startsWith(Token.ELSE_IF_CON)) {
+                        int lastId = getLastStart(result, "ELSE_IF", "CON", path, line, ")");
+                        result.add(Token.ELSE_IF_CON_END + lastId + "]");
+                        stack.pop();
+                    } else if (last.startsWith(Token.FOR_CON)) {
+                        int lastId = getLastStart(result, "FOR", "CON", path, line, ")");
+                        result.add(Token.FOR_CON_END + lastId + "]");
+                        stack.pop();
+                    } else if (last.startsWith(Token.WHILE_CON)) {
+                        int lastId = getLastStart(result, "WHILE", "CON", path, line, ")");
+                        result.add(Token.WHILE_CON_END + lastId + "]");
+                        stack.pop();
+                    } else {
+                        // TODO Inside condition brace
+                    }
                 }
             } else if (c == '{') {
                 if (stack.size() < 1)
@@ -96,7 +110,7 @@ public final class YeahLangParser {
                     result.add(Token.IF_START + id + "]");
                     id++;
                     i += 2;
-                    stack.push(Token.IF_CON);
+                    stack.push(Token.IF);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else if (chars[i] == 'f') {
@@ -106,7 +120,7 @@ public final class YeahLangParser {
                     result.add(Token.FOR_START + id + "]");
                     id++;
                     i += 3;
-                    stack.push(Token.FOR_CON);
+                    stack.push(Token.FOR);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else if (chars[i] == 'w') {
@@ -116,7 +130,7 @@ public final class YeahLangParser {
                     result.add(Token.WHILE_START + id + "]");
                     id++;
                     i += 5;
-                    stack.push(Token.WHILE_CON);
+                    stack.push(Token.WHILE);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else if (chars[i] == 'e') {
@@ -126,13 +140,13 @@ public final class YeahLangParser {
                     result.add(Token.ELSE_IF_START + id + "]");
                     id++;
                     i += 7;
-                    stack.push(Token.ELSE_IF_CON);
+                    stack.push(Token.ELSE_IF);
                 } else if (checkReserved(chars, i, "else", false, path, line)) {
 //                    result.append(Token.ELSE_START).append(id).append("]");
                     result.add(Token.ELSE_START + id + "]");
                     id++;
                     i += 4;
-                    stack.push(Token.ELSE_BODY);
+                    stack.push(Token.ELSE_BODY); // TODO Not body
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else {
@@ -175,6 +189,7 @@ public final class YeahLangParser {
                 query = String.format("[START_%s_", state);
             else
                 query = String.format("[START_%s_%s_", state, type);
+
             if (state.equals("ELSE") && type.equals("")) {
                 if (e.startsWith(query) && !e.startsWith(query + "IF_")) {
                     found = true;
@@ -245,7 +260,6 @@ public final class YeahLangParser {
                     finished = true;
                 }
             } else {
-//                System.out.println(i);
                 if (isEmpty(chars[i]))
                     continue;
 
@@ -263,7 +277,6 @@ public final class YeahLangParser {
             }
         }
 
-//        System.out.println(checked);
         return checked;
     }
 

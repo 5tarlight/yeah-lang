@@ -20,19 +20,24 @@ public final class Token<T> {
     public final static String ELSE_IF_START = "[START_ELSE_IF_";
     public final static String ELSE_START = "[START_ELSE";
     public final static String FOR_START = "[START_FOR_";
-    public final static String WHILE_START = "[START_FOR_";
+    public final static String WHILE_START = "[START_WHILE_";
 
+    public final static String IF = "IF";
+    public final static String ELSE_IF = "ELSE IF";
+    public final static String ELSE = "ELSE";
+    public final static String FOR = "FOR";
+    public final static String WHILE = "WHILE";
     public final static String IF_CON = "IF_CON";
-    public final static String IF_CON_START = "[START_IF_CON_";
-    public final static String IF_CON_END = "[END_IF_CON_";
     public final static String ELSE_IF_CON = "ELSE_IF_CON";
-    public final static String ELSE_IF_CON_START = "[START_ELSE_IF_CON_";
-    public final static String ELSE_IF_CON_END = "[END_ELSE_IF_CON_";
     public final static String FOR_CON = "FOR_CON";
-    public final static String FOR_CON_START = "[START_FOR_CON_";
-    public final static String FOR_CON_END = "[END_FOR_CON_";
     public final static String WHILE_CON = "WHILE_CON";
+    public final static String IF_CON_START = "[START_IF_CON_";
+    public final static String ELSE_IF_CON_START = "[START_ELSE_IF_CON_";
+    public final static String FOR_CON_START = "[START_FOR_CON_";
     public final static String WHILE_CON_START = "[START_WHILE_CON_";
+    public final static String IF_CON_END = "[END_IF_CON_";
+    public final static String ELSE_IF_CON_END = "[END_ELSE_IF_CON_";
+    public final static String FOR_CON_END = "[END_FOR_CON_";
     public final static String WHILE_CON_END = "[END_WHILE_CON_";
 
     public final static String IF_BODY = "IF_BODY";
@@ -54,7 +59,10 @@ public final class Token<T> {
     private final static String FUNC_PRINT = "[F_P]";
 
     public static boolean needSmallBrace(String last) {
-        return last.contains("CON");
+        return last.equals(IF) ||
+                last.equals(ELSE_IF) ||
+                last.equals(FOR) ||
+                last.equals(WHILE);
     }
 
     private static int getLitPreLength(String pre) {
