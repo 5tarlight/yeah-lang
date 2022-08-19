@@ -2,6 +2,8 @@ package com.yeahx4.cli.cmd;
 
 import com.yeahx4.lang.InvalidYeahFileException;
 import com.yeahx4.lang.YeahLangReader;
+import com.yeahx4.lang.exe.InvalidYeahSyntaxException;
+import com.yeahx4.lang.exe.YeahLangParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,20 +14,24 @@ import java.net.URL;
 /**
  * Execute file from cli argument
  */
-public class FileExecutor {
+public final class FileExecutor {
     /**
      * Execute .yeah file.
      *
      * @param key cli argument path. relative path will be automatically converted into absolute path.
+     * @throws InvalidYeahSyntaxException content of file is not valid yeah syntax
+     * @throws InvalidYeahFileException file of given path is not exist or invalid extension
      */
-    public static void runFile(String key) throws InvalidYeahFileException {
+    public static void runFile(String key) throws InvalidYeahFileException, InvalidYeahSyntaxException {
         File file = new File(key);
         String path;
 
         try {
             path = absUrl(file.getAbsolutePath());
             YeahLangReader reader = new YeahLangReader(path);
-            System.out.println(reader.readFile());
+            String content = reader.readFile();
+            YeahLangParser parser = new YeahLangParser();
+            parser.parse(content, path);
         } catch (URISyntaxException uri) {
             throw new InvalidYeahFileException(key, uri.getReason());
         } catch (IOException io) {

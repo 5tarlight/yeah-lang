@@ -2,6 +2,7 @@ package com.yeahx4.cli.cmd;
 
 import com.yeahx4.cli.InvalidOptionException;
 import com.yeahx4.lang.InvalidYeahFileException;
+import com.yeahx4.lang.exe.InvalidYeahSyntaxException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,12 +45,13 @@ public abstract class CliExecutor {
      * execute {@link CliExecutor} sub classes.
      *
      * @param key argument key. if not valid dash numbers,
-     * @param value argument parameter. {@link null} if not defined
+     * @param value argument parameter. {@code null} if not defined
      * @throws InvalidOptionException if key is not valid
      * @throws InvalidYeahFileException if given file path is not valid
+     * @throws InvalidYeahSyntaxException content of file is not valid yeah syntax
      */
     public static void exeKey(String key, String value)
-            throws InvalidOptionException, InvalidYeahFileException {
+            throws InvalidOptionException, InvalidYeahFileException, InvalidYeahSyntaxException {
         String originalKey = null;
 
         switch (key) {
