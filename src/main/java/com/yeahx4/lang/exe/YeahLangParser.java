@@ -1,6 +1,11 @@
 package com.yeahx4.lang.exe;
 
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Interpret yeah lang file.
