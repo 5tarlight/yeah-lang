@@ -173,13 +173,13 @@ public final class YeahLangParser {
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else if (chars[i] == 'e') {
                 // else, else if
-                if (checkReserved(chars, i, "else if", true, path, line)) {
+                if (checkReserved(chars, i, "else", false, path, line)) {
 //                    result.append(Token.ELSE_IF_START).append(id).append("]");
                     result.add(Token.ELSE_IF_START + id + "]");
                     id++;
                     i += 7;
                     state.push(Token.ELSE_IF);
-                } else if (checkReserved(chars, i, "else", false, path, line)) {
+                } else if (checkReserved(chars, i, "else if", true, path, line)) {
 //                    result.append(Token.ELSE_START).append(id).append("]");
                     result.add(Token.ELSE_START + id + "]");
                     id++;
@@ -284,22 +284,39 @@ public final class YeahLangParser {
 
         for (int i = start; !(i >= chars.length || finished); i++) {
             // Check reserved keyword
-            if (i == start) {
-                for (int j = 0; j < token.length(); j++) {
-                    if (chars[start + j] != token.charAt(j)) {
-                        if (!token.equals("else if"))
-                            throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + chars[start + j]);
+            if (i == start || token.equals("else if")) {
+                if (token.equals("else if") && i != start) {
+                    if (chars[i] == ' ') continue;
+                    if (chars.length - 1 < i + 1)
+                        throw new InvalidYeahSyntaxException(path, line, "Unexpected token");
+                    if (("" + chars[i] + chars[i + 1]).equals("if")) {
+                        checked = true;
+                    } else if (checked /* && !finished */) {
+                        if (isEmpty(chars[i])) continue;
+                        if (chars[i] == '(') finished = true;
                     }
-                }
+                } else {
+                    for (int j = 0; j < token.split(" ")[0].length(); j++) {
+                        if (chars[start + j] != token.charAt(j)) {
+                            if (!token.equals("else if"))
+                                throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + chars[start + j]);
+                        }
+                    }
 
-                i += token.length() - 1;
-                if (!needSmallBrace) {
-                    checked = true;
-                    finished = true;
+                    i += token.length() - 1;
+                    if (!needSmallBrace) {
+                        checked = true;
+                        finished = true;
+                    }
                 }
             } else {
                 if (isEmpty(chars[i]))
                     continue;
+
+                if (chars.length - 1 < i + 1 && ("" + chars[i] + chars[i + 1]).equals("if")) {
+                    // else if
+                    return false;
+                }
 
                 if (chars[i] == '(') {
                     checked = true;
