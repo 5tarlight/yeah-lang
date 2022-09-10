@@ -101,35 +101,42 @@ public final class YeahLangParser {
                     }
                 }
             } else if (c == '{') {
-                // TODO bug fix : else statement will cause exception
-                if (state.size() < 1 || !isLastResultElementEnd(result.getLast(), true))
+                if (state.size() < 1)
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '{'");
 
-                String token = getLastToken(result.getLast());
+                boolean isElse = isElseStart(result.getLast());
+                if (!isLastResultElementEnd(result.getLast(), true) && !isElse)
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '{'");
 
-                switch (token) {
-                    case "IF" -> {
-                        state.push(Token.IF_BODY);
-                        result.add(Token.IF_BODY_START + parseId(result.getLast()) + "]");
+                if (!isElse) {
+                    String token = getLastToken(result.getLast());
+
+                    switch (token) {
+                        case "IF" -> {
+                            state.push(Token.IF_BODY);
+                            result.add(Token.IF_BODY_START + parseId(result.getLast()) + "]");
+                        }
+                        case "ELSE_IF" -> {
+                            state.push(Token.ELSE_IF_BODY);
+                            result.add(Token.ELSE_IF_BODY_START + parseId(result.getLast()) + "]");
+                        }
+                        case "ELSE" -> {
+                            state.push(Token.ELSE_BODY);
+                            result.add(Token.ELSE_BODY_START + parseId(result.getLast()) + "]");
+                        }
+                        case "FOR" -> {
+                            state.push(Token.FOR_BODY);
+                            result.add(Token.FOR_BODY_START + parseId(result.getLast()) + "]");
+                        }
+                        case "WHILE" -> {
+                            state.push(Token.WHILE_BODY);
+                            result.add(Token.WHILE_BODY_START + parseId(result.getLast()) + "]");
+                        }
                     }
-                    case "ELSE_IF" -> {
-                        state.push(Token.ELSE_IF_BODY);
-                        result.add(Token.ELSE_IF_BODY_START + parseId(result.getLast()) + "]");
-                    }
-                    case "ELSE" -> {
-                        state.push(Token.ELSE_BODY);
-                        result.add(Token.ELSE_BODY_START + parseId(result.getLast()) + "]");
-                    }
-                    case "FOR" -> {
-                        state.push(Token.FOR_BODY);
-                        result.add(Token.FOR_BODY_START + parseId(result.getLast()) + "]");
-                    }
-                    case "WHILE" -> {
-                        state.push(Token.WHILE_BODY);
-                        result.add(Token.WHILE_BODY_START + parseId(result.getLast()) + "]");
-                    }
+                } else {
+                    state.push(Token.ELSE_BODY);
+                    result.add(Token.ELSE_BODY_START + parseId(result.getLast()) + "]");
                 }
-
             } else if (c == '}') {
                 if (state.size() < 1)
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '}'");
@@ -369,5 +376,9 @@ public final class YeahLangParser {
     private int parseId(String e) {
         String[] tokens = e.substring(1, e.length() - 1).split("_");
         return Integer.parseInt(tokens[tokens.length - 1]);
+    }
+
+    private boolean isElseStart(String e) {
+        return e.startsWith("[START_ELSE_") && !e.startsWith("[START_ELSE_IF_");
     }
 }
