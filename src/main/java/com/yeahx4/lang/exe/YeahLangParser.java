@@ -1,6 +1,5 @@
 package com.yeahx4.lang.exe;
 
-
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -140,7 +139,8 @@ public final class YeahLangParser {
             } else if (c == '}') {
                 if (state.size() < 1)
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '}'");
-                continue; // TODO End scope
+
+                System.out.println(state.lastElement());
             } else if (chars[i] == 'i') {
                 // if
                 if (checkReserved(chars, i, "if", true, path, line)) {
@@ -361,7 +361,7 @@ public final class YeahLangParser {
     private String getLastToken(String e) {
         String[] tokens = e.split("_");
         String token = tokens[1];
-        if (token.equals("IF") && tokens[2].equals("ELSE"))
+        if (token.equals("ELSE") && tokens[2].equals("IF"))
             return "ELSE_IF";
         else
             return token;
