@@ -1,7 +1,5 @@
 package com.yeahx4.lang.exe;
 
-import java.util.Stack;
-
 /**
  * language parsing tokenizer.
  * Struct code structure
@@ -18,7 +16,7 @@ public final class Token<T> {
 
     public final static String IF_START = "[START_IF_";
     public final static String ELSE_IF_START = "[START_ELSE_IF_";
-    public final static String ELSE_START = "[START_ELSE";
+    public final static String ELSE_START = "[START_ELSE_";
     public final static String FOR_START = "[START_FOR_";
     public final static String WHILE_START = "[START_WHILE_";
 

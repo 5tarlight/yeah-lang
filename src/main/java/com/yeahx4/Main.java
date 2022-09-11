@@ -1,7 +1,6 @@
 package com.yeahx4;
 
 import com.yeahx4.cli.CliParamParser;
-import com.yeahx4.cli.InvalidOptionException;
 import com.yeahx4.cli.ParamData;
 import com.yeahx4.cli.cmd.CliExecutor;
 import com.yeahx4.lang.YeahException;
