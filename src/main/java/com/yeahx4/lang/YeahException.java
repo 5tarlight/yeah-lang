@@ -1,8 +1,5 @@
 package com.yeahx4.lang;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Yeah lang exception.
  * Exception code {@link YeahExceptionCode} is assigned.
