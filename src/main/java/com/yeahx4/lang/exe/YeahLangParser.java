@@ -140,7 +140,21 @@ public final class YeahLangParser {
                 if (state.size() < 1)
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '}'");
 
-                System.out.println(state.lastElement());
+                String last = state.lastElement();
+                if (!last.contains("BODY"))
+                    throw new InvalidYeahSyntaxException(path, line, "Unexpected token : '}'");
+
+                String reserved = last.substring(0, last.length() - 5);
+                int lastStartId = getLastStartId(result, reserved, "BODY", path, line);
+                state.pop();
+
+                switch (reserved) {
+                    case "IF" -> result.add(Token.IF_BODY_END + lastStartId + "]");
+                    case "ELSE IF" -> result.add(Token.ELSE_IF_BODY_END + lastStartId + "]");
+                    case "ELSE" -> result.add(Token.ELSE_BODY_END + lastStartId + "]");
+                    case "FOR" -> result.add(Token.FOR_BODY_END + lastStartId + "]");
+                    case "WHILE" -> result.add(Token.WHILE_BODY_END + lastStartId + "]");
+                }
             } else if (chars[i] == 'i') {
                 // if
                 if (checkReserved(chars, i, "if", true, path, line)) {
@@ -188,6 +202,7 @@ public final class YeahLangParser {
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else {
+                // TODO not reserved but phrase
                 throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             }
         }
@@ -395,7 +410,54 @@ public final class YeahLangParser {
         return Integer.parseInt(tokens[tokens.length - 1]);
     }
 
+    /**
+     * Check is [START_ELSE_n]
+     *
+     * @param e element
+     * @return is element start else
+     */
     private boolean isElseStart(String e) {
         return e.startsWith("[START_ELSE_") && !e.startsWith("[START_ELSE_IF_");
+    }
+
+    /**
+     * Extract id of last start element
+     *
+     * @param queue queue of result
+     * @param reserve reserved keyword to find
+     * @param kind kind of start keyword (BODY, CON)
+     * @param file path of current file
+     * @param line line of file
+     * @return id of reserved keyword
+     */
+    private int getLastStartId(
+            Deque<String> queue,
+            String reserve,
+            String kind,
+            String file,
+            int line
+    ) throws InvalidYeahSyntaxException {
+        Stack<String> reverse = new Stack<>();
+        Deque<String> q = new LinkedList<>(queue);
+
+        while (!q.isEmpty()) {
+            reverse.push(q.pop());
+        }
+
+        boolean find = false;
+        int id = -1;
+        while (!reverse.isEmpty() && !find) {
+            String r = reverse.pop();
+            String s = "[START_" + reserve + "_" + kind + "_";
+            if (r.startsWith(s)) {
+                find = true;
+                id = Integer.parseInt(r.substring(s.length(), r.length() - 1));
+            }
+        }
+
+        if (!find)
+            throw new InvalidYeahSyntaxException(file, line, "");
+
+        return id;
     }
 }
