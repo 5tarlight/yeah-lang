@@ -158,7 +158,6 @@ public final class YeahLangParser {
             } else if (chars[i] == 'i') {
                 // if
                 if (checkReserved(chars, i, "if", true, path, line)) {
-//                    result.append(Token.IF_START).append(id).append("]");
                     result.add(Token.IF_START + id + "]");
                     id++;
                     i += 2;
@@ -168,7 +167,6 @@ public final class YeahLangParser {
             } else if (chars[i] == 'f') {
                 // for
                 if (checkReserved(chars, i, "for", true, path, line)) {
-//                    result.append(Token.FOR_START).append(id).append("]");
                     result.add(Token.FOR_START + id + "]");
                     id++;
                     i += 3;
@@ -178,7 +176,6 @@ public final class YeahLangParser {
             } else if (chars[i] == 'w') {
                 // while
                 if (checkReserved(chars, i, "while", true, path, line)) {
-//                    result.append(Token.WHILE_START).append(id).append("]");
                     result.add(Token.WHILE_START + id + "]");
                     id++;
                     i += 5;
@@ -188,17 +185,15 @@ public final class YeahLangParser {
             } else if (chars[i] == 'e') {
                 // else, else if
                 if (checkReserved(chars, i, "else", false, path, line)) {
-//                    result.append(Token.ELSE_IF_START).append(id).append("]");
-                    result.add(Token.ELSE_IF_START + id + "]");
-                    id++;
-                    i += 7;
-                    state.push(Token.ELSE_IF);
-                } else if (checkReserved(chars, i, "else if", true, path, line)) {
-//                    result.append(Token.ELSE_START).append(id).append("]");
                     result.add(Token.ELSE_START + id + "]");
                     id++;
                     i += 4;
                     state.push(Token.ELSE);
+                } else if (checkReserved(chars, i, "else if", true, path, line)) {
+                    result.add(Token.ELSE_IF_START + id + "]");
+                    id++;
+                    i += 7;
+                    state.push(Token.ELSE_IF);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else {
