@@ -160,7 +160,7 @@ public final class YeahLangParser {
                 if (checkReserved(chars, i, "if", true, path, line)) {
                     result.add(Token.IF_START + id + "]");
                     id++;
-                    i += 2;
+                    i += 1; // i++ will be executed on for continue
                     state.push(Token.IF);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
@@ -169,7 +169,7 @@ public final class YeahLangParser {
                 if (checkReserved(chars, i, "for", true, path, line)) {
                     result.add(Token.FOR_START + id + "]");
                     id++;
-                    i += 3;
+                    i += 2; // i++ will be executed on for continue
                     state.push(Token.FOR);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
@@ -178,21 +178,22 @@ public final class YeahLangParser {
                 if (checkReserved(chars, i, "while", true, path, line)) {
                     result.add(Token.WHILE_START + id + "]");
                     id++;
-                    i += 5;
+                    i += 4; // i++ will be executed on for continue
                     state.push(Token.WHILE);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else if (chars[i] == 'e') {
                 // else, else if
+                System.out.println(checkReserved(chars, i, "else", false, path, line));
                 if (checkReserved(chars, i, "else", false, path, line)) {
                     result.add(Token.ELSE_START + id + "]");
                     id++;
-                    i += 4;
+                    i += 3; // i++ will be executed on for continue
                     state.push(Token.ELSE);
                 } else if (checkReserved(chars, i, "else if", true, path, line)) {
                     result.add(Token.ELSE_IF_START + id + "]");
                     id++;
-                    i += 7;
+                    i += 6; // i++ will be executed on for continue
                     state.push(Token.ELSE_IF);
                 } else
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
@@ -297,6 +298,8 @@ public final class YeahLangParser {
             if (i == start || token.equals("else if")) {
                 if (token.equals("else if") && i != start) {
                     if (chars[i] == ' ') continue;
+                    System.out.println(chars);
+                    System.out.println(i);
                     if (chars.length - 1 < i + 1)
                         throw new InvalidYeahSyntaxException(path, line, "Unexpected token");
                     if (("" + chars[i] + chars[i + 1]).equals("if")) {
@@ -308,12 +311,20 @@ public final class YeahLangParser {
                 } else {
                     for (int j = 0; j < token.split(" ")[0].length(); j++) {
                         if (chars[start + j] != token.charAt(j)) {
-                            if (!token.equals("else if"))
-                                throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + chars[start + j]);
+                            throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + chars[start + j]);
                         }
                     }
 
-                    i += token.length() - 1;
+                    i += token.split(" ")[0].length();
+                    if (
+                            chars.length - 1 > i + 2 &&
+                            ("" + chars[i + 1] + chars[i + 2]).equals("if") &&
+                            !token.equals("else if")
+                    ) {
+                        // else if
+                        return false;
+                    }
+
                     if (!needSmallBrace) {
                         checked = true;
                         finished = true;
@@ -323,7 +334,7 @@ public final class YeahLangParser {
                 if (isEmpty(chars[i]))
                     continue;
 
-                if (chars.length - 1 < i + 1 && ("" + chars[i] + chars[i + 1]).equals("if")) {
+                if (chars.length - 1 > i + 1 && ("" + chars[i] + chars[i + 1]).equals("if")) {
                     // else if
                     return false;
                 }
