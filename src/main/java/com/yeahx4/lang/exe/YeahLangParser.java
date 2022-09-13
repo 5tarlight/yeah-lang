@@ -184,7 +184,6 @@ public final class YeahLangParser {
                     throw new InvalidYeahSyntaxException(path, line, "Unexpected token : " + c);
             } else if (chars[i] == 'e') {
                 // else, else if
-                System.out.println(checkReserved(chars, i, "else", false, path, line));
                 if (checkReserved(chars, i, "else", false, path, line)) {
                     result.add(Token.ELSE_START + id + "]");
                     id++;
@@ -298,8 +297,6 @@ public final class YeahLangParser {
             if (i == start || token.equals("else if")) {
                 if (token.equals("else if") && i != start) {
                     if (chars[i] == ' ') continue;
-                    System.out.println(chars);
-                    System.out.println(i);
                     if (chars.length - 1 < i + 1)
                         throw new InvalidYeahSyntaxException(path, line, "Unexpected token");
                     if (("" + chars[i] + chars[i + 1]).equals("if")) {
