@@ -22,10 +22,10 @@ Nothing.
 ## Execution
 ```bash
 (Unix)
-./yeah.sh <exe-file-path> [...Options]
+./yeah.sh <yeah-file-path> [...Options]
 
 (Windows)
-java -jar JAR_BUILD.jar <exe-file-path> [...Options]
+java -jar JAR_BUILD.jar <yeah-file-path> [...Options]
 ```
 
 ### Arguments
